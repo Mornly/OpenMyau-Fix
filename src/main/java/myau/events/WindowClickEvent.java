@@ -14,6 +14,7 @@ public class WindowClickEvent extends EventCancellable {
         this.mouseButtonClicked = mouseButtonClicked;
         this.mode = mode;
     }
+<<<<<<< HEAD
 
     // 添加以下 getter
     public int getWindowsId() {
@@ -32,3 +33,6 @@ public class WindowClickEvent extends EventCancellable {
         return mode;
     }
 }
+=======
+}
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61

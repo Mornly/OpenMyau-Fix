@@ -1,7 +1,13 @@
 package myau.module.modules;
 
 import com.google.common.base.CaseFormat;
+<<<<<<< HEAD
 import myau.Myau;
+=======
+import io.netty.buffer.Unpooled;
+import myau.Myau;
+import myau.enums.BlinkModules;
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
 import myau.enums.FloatModules;
 import myau.event.EventTarget;
 import myau.event.types.EventType;
@@ -17,7 +23,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityVillager;
+<<<<<<< HEAD
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
+=======
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.network.play.client.C09PacketHeldItemChange;
+import net.minecraft.network.play.client.C17PacketCustomPayload;
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
 import net.minecraft.util.BlockPos;
 
 import java.util.Random;
@@ -27,6 +40,11 @@ public class NoSlow extends Module {
 
     public final ModeProperty swordMode = new ModeProperty("Sword Mode", 1, new String[]{"None", "Vanilla", "Hypixel"});
     public final IntProperty swapDelay = new IntProperty("Swap Delay", 0, 0, 3, () -> swordMode.getValue() == 2);
+<<<<<<< HEAD
+=======
+    public final BooleanProperty test = new BooleanProperty("Test", false, () -> swordMode.getValue() == 2);
+    public final BooleanProperty c17 = new BooleanProperty("C17 Packet", false, () -> swordMode.getValue() == 2);
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     public final BooleanProperty noAttack = new BooleanProperty("No Attack", false, () -> swordMode.getValue() == 2);
     public final PercentProperty swordMotion = new PercentProperty("Sword Motion", 100, () -> this.swordMode.getValue() != 0);
     public final BooleanProperty swordSprint = new BooleanProperty("Sword Sprint", true, () -> this.swordMode.getValue() != 0);
@@ -38,6 +56,10 @@ public class NoSlow extends Module {
     public final PercentProperty bowMotion = new PercentProperty("Bow Motion", 100, () -> this.bowMode.getValue() != 0);
     public final BooleanProperty bowSprint = new BooleanProperty("Bow Sprint", true, () -> this.bowMode.getValue() != 0);
 
+<<<<<<< HEAD
+=======
+    private int lastSlot = -1;
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     private int delay = 0;
     private boolean post = false;
 
@@ -113,7 +135,17 @@ public class NoSlow extends Module {
                                 while (randomSlot == mc.thePlayer.inventory.currentItem) {
                                     randomSlot = new Random().nextInt(9);
                                 }
+<<<<<<< HEAD
                                 PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
+=======
+                                if (test.getValue()) {
+                                    Myau.blinkManager.setBlinkState(true, BlinkModules.NO_SLOW);
+                                }
+                                PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
+                                if (c17.getValue()) {
+                                    PacketUtil.sendPacket(new C17PacketCustomPayload("woshijiejue", new PacketBuffer(Unpooled.buffer())));
+                                }
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
                                 PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
                             }
                             post = true;
@@ -124,6 +156,21 @@ public class NoSlow extends Module {
             }
         } else {
             if (post) {
+<<<<<<< HEAD
+=======
+                if (test.getValue()) {
+                    int randomSlot = new Random().nextInt(9);
+                    while (randomSlot == mc.thePlayer.inventory.currentItem) {
+                        randomSlot = new Random().nextInt(9);
+                    }
+                    Myau.blinkManager.setBlinkState(false, BlinkModules.NO_SLOW);
+                    PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
+                    if (c17.getValue()) {
+                        PacketUtil.sendPacket(new C17PacketCustomPayload("woshijiejue", new PacketBuffer(Unpooled.buffer())));
+                    }
+                    PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+                }
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
                 post = false;
             }
         }
@@ -137,6 +184,13 @@ public class NoSlow extends Module {
             if (this.swordMode.getValue() == 2) {
                 if (post) {
                     post = false;
+<<<<<<< HEAD
+=======
+                    if (test.getValue()) {
+                        PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
+                        Myau.blinkManager.setBlinkState(false, BlinkModules.NO_SLOW);
+                    }
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
                 }
             }
         }
@@ -158,8 +212,17 @@ public class NoSlow extends Module {
     public void onPlayerUpdate(PlayerUpdateEvent event) {
         if (this.isEnabled() && this.isFloatMode()) {
             int item = mc.thePlayer.inventory.currentItem;
+<<<<<<< HEAD
             Myau.floatManager.setFloatState(true, FloatModules.NO_SLOW);
         } else {
+=======
+            if (this.lastSlot != item && PlayerUtil.isUsingItem()) {
+                this.lastSlot = item;
+                Myau.floatManager.setFloatState(true, FloatModules.NO_SLOW);
+            }
+        } else {
+            this.lastSlot = -1;
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
             Myau.floatManager.setFloatState(false, FloatModules.NO_SLOW);
         }
     }

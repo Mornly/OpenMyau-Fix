@@ -26,9 +26,12 @@ public class InvManager extends Module {
     private int oDelay = 0;
     private boolean inventoryOpen = false;
     private final TimerUtil autoArmorTime = new TimerUtil();
+<<<<<<< HEAD
     private int autoArmorCooldown = 0;
     private boolean isAutoArmorClick = false;
 
+=======
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     public final IntProperty minDelay = new IntProperty("min-delay", 1, 0, 20);
     public final IntProperty maxDelay = new IntProperty("max-delay", 2, 0, 20);
     public final IntProperty openDelay = new IntProperty("open-delay", 1, 0, 20);
@@ -87,6 +90,7 @@ public class InvManager extends Module {
             if (this.oDelay > 0) {
                 this.oDelay--;
             }
+<<<<<<< HEAD
             if (this.autoArmorCooldown > 0) {
                 this.autoArmorCooldown--;
             }
@@ -100,6 +104,11 @@ public class InvManager extends Module {
                 if (this.inventoryOpen) {
                     this.autoArmorCooldown = 0;
                 }
+=======
+            if (!(mc.currentScreen instanceof GuiInventory)) {
+                this.inventoryOpen = false;
+            } else if (!(((GuiInventory) mc.currentScreen).inventorySlots instanceof ContainerPlayer)) {
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
                 this.inventoryOpen = false;
             } else {
                 if (!this.inventoryOpen) {
@@ -107,7 +116,11 @@ public class InvManager extends Module {
                     this.oDelay = this.openDelay.getValue() + 1;
                     this.autoArmorTime.reset();
                 }
+<<<<<<< HEAD
                 if (this.oDelay <= 0 && this.actionDelay <= 0 && this.autoArmorCooldown == 0) {
+=======
+                if (this.oDelay <= 0 && this.actionDelay <= 0) {
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
                     if (this.isEnabled() && this.isValidGameMode()) {
                         ArrayList<Integer> equippedArmorSlots = new ArrayList<>(Arrays.asList(-1, -1, -1, -1));
                         ArrayList<Integer> inventoryArmorSlots = new ArrayList<>(Arrays.asList(-1, -1, -1, -1));
@@ -152,6 +165,7 @@ public class InvManager extends Module {
                                     if (equippedSlot != playerArmorSlot && inventorySlot != playerArmorSlot) {
                                         if (mc.thePlayer.inventory.getStackInSlot(playerArmorSlot) != null) {
                                             if (mc.thePlayer.inventory.getFirstEmptyStack() != -1) {
+<<<<<<< HEAD
                                                 isAutoArmorClick = true;
                                                 this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(playerArmorSlot), 0, 1);
                                                 isAutoArmorClick = false;
@@ -165,6 +179,15 @@ public class InvManager extends Module {
                                             isAutoArmorClick = true;
                                             this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(armorToEquipSlot), 0, 1);
                                             isAutoArmorClick = false;
+=======
+                                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(playerArmorSlot), 0, 1);
+                                            } else {
+                                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(playerArmorSlot), 1, 4);
+                                            }
+                                        } else {
+                                            int armorToEquipSlot = equippedSlot != -1 ? equippedSlot : inventorySlot;
+                                            this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(armorToEquipSlot), 0, 1);
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
                                             this.autoArmorTime.reset();
                                         }
                                         return;
@@ -271,6 +294,7 @@ public class InvManager extends Module {
 
     @EventTarget
     public void onClick(WindowClickEvent event) {
+<<<<<<< HEAD
         if (this.minDelay.getValue() == 0 && this.maxDelay.getValue() == 0) {
             this.actionDelay = 0;
         } else {
@@ -287,6 +311,9 @@ public class InvManager extends Module {
                 }
             }
         }
+=======
+        this.actionDelay = RandomUtils.nextInt(this.minDelay.getValue() + 1, this.maxDelay.getValue() + 2);
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     }
 
     @Override

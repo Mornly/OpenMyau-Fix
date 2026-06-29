@@ -74,7 +74,10 @@ public class Myau {
         moduleManager.modules.put(Timer.class, new Timer());
         moduleManager.modules.put(BedESP.class, new BedESP());
         moduleManager.modules.put(BedTracker.class, new BedTracker());
+<<<<<<< HEAD
         moduleManager.modules.put(FreeLook.class, new FreeLook());
+=======
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
         moduleManager.modules.put(Blink.class, new Blink());
         moduleManager.modules.put(Chams.class, new Chams());
         moduleManager.modules.put(ChestESP.class, new ChestESP());

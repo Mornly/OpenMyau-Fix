@@ -32,7 +32,10 @@ import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C02PacketUseEntity.Action;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
+<<<<<<< HEAD
 import org.lwjgl.input.Mouse;
+=======
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -54,6 +57,7 @@ public class TargetHUD extends Module {
     private float newHealth = 0.0F;
     private float maxHealth = 0.0F;
 
+<<<<<<< HEAD
     private boolean dragging = false;
     private int dragStartX = 0;
     private int dragStartY = 0;
@@ -61,6 +65,9 @@ public class TargetHUD extends Module {
     private int dragStartOffY = 0;
     private boolean positionLocked = true;
 
+=======
+    // ------ 属性配置 ------
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     public final ModeProperty color = new ModeProperty("color", 0, new String[]{"DEFAULT", "HUD"});
     public final ModeProperty posX = new ModeProperty("position-x", 1, new String[]{"LEFT", "MIDDLE", "RIGHT"});
     public final ModeProperty posY = new ModeProperty("position-y", 1, new String[]{"TOP", "MIDDLE", "BOTTOM"});
@@ -83,6 +90,11 @@ public class TargetHUD extends Module {
         super("TargetHUD", false, true);
     }
 
+<<<<<<< HEAD
+=======
+    // ==================== 核心逻辑 ====================
+
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     private EntityLivingBase resolveTarget() {
         KillAura killAura = (KillAura) Myau.moduleManager.getModule(KillAura.class);
         if (killAura != null && killAura.isEnabled() && killAura.isAttackAllowed() && TeamUtil.isEntityLoaded(killAura.getTarget())) {
@@ -133,12 +145,21 @@ public class TargetHUD extends Module {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // ==================== 伤害计算（用于胜率预测） ====================
+
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     private float damage(final ItemStack stack, final Entity attacker, final Entity target) {
         float baseDamage = 1.0f;
         if (stack != null) {
             final Item item = stack.getItem();
             int sharpnessLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.sharpness.effectId, stack);
 
+<<<<<<< HEAD
+=======
+            // 简化估算：Sword 基础4，Tool 基础3
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
             if (item instanceof ItemSword) {
                 baseDamage = 4.0f;
             } else if (item instanceof ItemTool) {
@@ -193,6 +214,11 @@ public class TargetHUD extends Module {
         return playerHealth - targetHealth;
     }
 
+<<<<<<< HEAD
+=======
+    // ==================== 事件处理 ====================
+
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     @EventTarget
     public void onRender(Render2DEvent event) {
         if (!this.isEnabled() || mc.thePlayer == null) return;
@@ -240,6 +266,10 @@ public class TargetHUD extends Module {
 
             float winningValue = calculateWinning();
             String winLabel = winningValue > 0.0F ? "&aWinning:&r " : "&cLosing:&r ";
+<<<<<<< HEAD
+=======
+            // 实际绘制时未使用 winLabel，保留可扩展
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
 
             int targetNameWidth = mc.fontRendererObj.getStringWidth(targetNameText);
             String healthText = ChatColors.formatColor(
@@ -286,6 +316,7 @@ public class TargetHUD extends Module {
                     break;
             }
 
+<<<<<<< HEAD
             int mouseX = Mouse.getX() * scaledResolution.getScaledWidth() / mc.displayWidth;
             int mouseY = scaledResolution.getScaledHeight() - Mouse.getY() * scaledResolution.getScaledHeight() / mc.displayHeight - 1;
 
@@ -318,6 +349,8 @@ public class TargetHUD extends Module {
                 }
             }
 
+=======
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
             GlStateManager.pushMatrix();
             GlStateManager.scale(this.scale.getValue(), this.scale.getValue(), 0.0F);
             GlStateManager.translate(posX, posY, -450.0F);
@@ -374,6 +407,10 @@ public class TargetHUD extends Module {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // ==================== 生命周期 ====================
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
 
     @Override
     public String[] getSuffix() {

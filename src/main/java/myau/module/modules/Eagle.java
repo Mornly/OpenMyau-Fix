@@ -48,7 +48,11 @@ public class Eagle extends Module {
     }
 
     public Eagle() {
+<<<<<<< HEAD
         super("Eagle", false);
+=======
+        super("LegitScaffold", false);
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
     }
 
     @EventTarget(Priority.LOWEST)

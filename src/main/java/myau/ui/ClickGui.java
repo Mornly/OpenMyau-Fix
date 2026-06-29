@@ -75,7 +75,10 @@ public class ClickGui extends GuiScreen {
         renderModules.add(Myau.moduleManager.getModule(ChestESP.class));
         renderModules.add(Myau.moduleManager.getModule(Trajectories.class));
         renderModules.add(Myau.moduleManager.getModule(Notifications.class));
+<<<<<<< HEAD
         renderModules.add(Myau.moduleManager.getModule(FreeLook.class));
+=======
+>>>>>>> e7b1dde9d663c728a1ea63266e41a22ddd0a1e61
 
         List<Module> playerModules = new ArrayList<>();
         playerModules.add(Myau.moduleManager.getModule(AutoHeal.class));
