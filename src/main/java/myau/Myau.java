@@ -113,7 +113,8 @@ public class Myau {
         moduleManager.modules.put(Reach.class, new Reach());
         moduleManager.modules.put(Scaffold.class, new Scaffold());
         moduleManager.modules.put(AutoBlockIn.class, new AutoBlockIn());
-        moduleManager.modules.put(AutoBlockIn.class, new ClientSpoofer());
+        moduleManager.modules.put(ClientSpoofer.class, new ClientSpoofer());
+        moduleManager.modules.put(FlagDetector.class, new FlagDetector());
         moduleManager.modules.put(Spammer.class, new Spammer());
         moduleManager.modules.put(Speed.class, new Speed());
         moduleManager.modules.put(SpeedMine.class, new SpeedMine());
