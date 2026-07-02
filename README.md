@@ -17,6 +17,6 @@ If you think it's very useful, then you're also right.
 
 # Contributions
 
-Code reference: [OpenMyau](https://github.com/60124808866/OpenMyau) || [Leader Client](https://github.com/Mornly/LeaderClient) || [OpenMyau-Plus](https://github.com/IamNespola/OpenMyau-Plus)
+Code reference: [OpenMyau](https://github.com/60124808866/OpenMyau) || [Leader Client](https://github.com/Mornly/LeaderClient) || [OpenMyau-Plus](https://github.com/IamNespola/OpenMyau-Plus) || [MyauReborn](https://github.com/Infinity114514/MyauReborn)
 
 Developer: [Mornly](https://github.com/Mornly)
