@@ -55,6 +55,8 @@ public class KillAura extends Module {
     public final ModeProperty sort;
     public ModeProperty autoBlock;
     private final BooleanProperty noSwap = new BooleanProperty("NoSwap", true, () -> this.autoBlock.getValue() == 2);
+    private final BooleanProperty test = new BooleanProperty("MoreAttack", false, () -> this.autoBlock.getValue() == 2);
+    private final IntProperty moreAttackDelay = new IntProperty("MoreAttackDelay", 1, 0, 3, () -> this.autoBlock.getValue() == 2 && test.getValue());
     private final IntProperty maxTick = new IntProperty("MaxTick", 3, 1, 5, () -> this.autoBlock.getValue() == 6);
     private final IntProperty startBlinkTick = new IntProperty("StartBlinkTick", 0, 1, 5, () -> this.autoBlock.getValue() == 6);
     private final IntProperty stopBlinkTick = new IntProperty("StopBlinkTick", 2, 1, 5, () -> this.autoBlock.getValue() == 6);
@@ -93,7 +95,7 @@ public class KillAura extends Module {
     public final BooleanProperty golems;
     public final BooleanProperty silverfish;
     public final BooleanProperty teams;
-    public final ModeProperty showTarget;
+    public ModeProperty showTarget;
 
     private final TimerUtil timer = new TimerUtil();
     private AttackData target = null;
@@ -107,6 +109,7 @@ public class KillAura extends Module {
     private boolean swapped = false;
     private boolean postBlock = false;
     private boolean postSwap = false;
+    private int testAttackTick = 0;
 
     public KillAura() {
         super("KillAura", false);
@@ -114,7 +117,7 @@ public class KillAura extends Module {
         this.sort = new ModeProperty("Sort", 0, new String[]{"Distance", "Health", "Hurt Time", "FOV"});
 
         this.autoBlock = new ModeProperty(
-                "AutoBlock", 0, new String[]{"None", "Vanilla", "Hypixel_A", "Hypixel_B", "Legit", "Fake", "Hypixel_Custom"}
+                "AutoBlock", 0, new String[]{"None", "Vanilla", "Hypixel", "Legit", "Fake", "Hypixel Test", "Hypixel Custom"}
         );
         this.autoBlockRequirePress = new BooleanProperty("AutoBlock Require Press", false);
         this.autoBlockCPS = new IntProperty("AutoBlock Aps", 10, 1, 20);
@@ -147,6 +150,8 @@ public class KillAura extends Module {
         this.showTarget = new ModeProperty("Show Target", 0, new String[]{"None", "Default", "Hud", "Scan"});
     }
 
+    public FloatProperty scanThickness = new FloatProperty("ScanThickness", 0.6F, 0.1F, 2.5F, () -> showTarget.getValue() == 3);
+
     private long getAttackDelay() {
         return this.isBlocking ? (long) (1000.0F / this.autoBlockCPS.getValue()) : 1000L / RandomUtil.nextLong(this.minCPS.getValue(), this.maxCPS.getValue());
     }
@@ -156,6 +161,8 @@ public class KillAura extends Module {
             if (this.isPlayerBlocking() && this.autoBlock.getValue() != 1) {
                 return false;
             } else if (this.attackDelayMS > 0L) {
+                return false;
+            } else if (((IAccessorMinecraft) mc).getTimer().timerSpeed < 1F && lowTimerCheck.getValue()) {
                 return false;
             } else {
                 this.attackDelayMS = this.attackDelayMS + this.getAttackDelay();
@@ -219,9 +226,6 @@ public class KillAura extends Module {
     private boolean canAttack() {
         if (this.inventoryCheck.getValue() && mc.currentScreen instanceof GuiContainer) {
             return false;
-        }
-        if (((IAccessorMinecraft) mc).getTimer().timerSpeed < 1F && lowTimerCheck.getValue()) {
-            return false;
         } else if (!(Boolean) this.weaponsOnly.getValue()
                 || ItemUtil.hasRawUnbreakingEnchant()
                 || this.allowTools.getValue() && ItemUtil.isHoldingTool()) {
@@ -273,17 +277,6 @@ public class KillAura extends Module {
                 );
     }
 
-    private boolean hasVisiblePoint(AxisAlignedBB box) {
-        Vec3 center = new Vec3((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2);
-        Vec3 eye = mc.thePlayer.getPositionEyes(1.0F);
-        MovingObjectPosition mop = mc.theWorld.rayTraceBlocks(eye, center);
-        if (mop == null || mop.typeOfHit == MovingObjectType.MISS) return true;
-        if (mop.typeOfHit == MovingObjectType.BLOCK) {
-            return false;
-        }
-        return true;
-    }
-
     private boolean isValidTarget(EntityLivingBase entityLivingBase) {
         if (!mc.theWorld.loadedEntityList.contains(entityLivingBase)) {
             return false;
@@ -294,7 +287,7 @@ public class KillAura extends Module {
                 return false;
             } else if (RotationUtil.angleToEntity(entityLivingBase) > this.fov.getValue().floatValue()) {
                 return false;
-            } else if (!this.throughWalls.getValue() && !hasVisiblePoint(entityLivingBase.getEntityBoundingBox().expand(entityLivingBase.getCollisionBorderSize(), entityLivingBase.getCollisionBorderSize(), entityLivingBase.getCollisionBorderSize()))) {
+            } else if (!this.throughWalls.getValue() && !RotationUtil.hasVisiblePoint(entityLivingBase.getEntityBoundingBox().expand(entityLivingBase.getCollisionBorderSize(), entityLivingBase.getCollisionBorderSize(), entityLivingBase.getCollisionBorderSize()))) {
                 return false;
             } else if (entityLivingBase instanceof EntityOtherPlayerMP) {
                 if (!this.players.getValue()) {
@@ -374,7 +367,7 @@ public class KillAura extends Module {
 
     public boolean shouldAutoBlock() {
         if (this.isPlayerBlocking() && this.isBlocking) {
-            return !mc.thePlayer.isInWater() && !mc.thePlayer.isInLava() && (this.autoBlock.getValue() == 2 || this.autoBlock.getValue() == 3 || this.autoBlock.getValue() == 4 || this.autoBlock.getValue() == 6);
+            return !mc.thePlayer.isInWater() && !mc.thePlayer.isInLava() && (this.autoBlock.getValue() == 2 || this.autoBlock.getValue() == 3 || this.autoBlock.getValue() == 5 || this.autoBlock.getValue() == 6 || this.autoBlock.getValue() == 7);
         } else {
             return false;
         }
@@ -463,7 +456,52 @@ public class KillAura extends Module {
                                                 }
                                                 this.stopBlock();
                                             }
-                                            attack = false;
+                                            if (test.getValue()) {
+                                                if (testAttackTick >= moreAttackDelay.getValue()) {
+                                                    testAttackTick = 0;
+                                                } else {
+                                                    testAttackTick++;
+                                                    attack = false;
+                                                }
+                                            } else {
+                                                attack = false;
+                                            }
+                                            this.blockTick = 0;
+                                            break;
+                                        default:
+                                            this.blockTick = 0;
+                                            break;
+                                    }
+                                }
+                                this.isBlocking = true;
+                                this.fakeBlockState = true;
+                            } else {
+                                int randomSlot = new Random().nextInt(9);
+                                while (randomSlot == mc.thePlayer.inventory.currentItem) {
+                                    randomSlot = new Random().nextInt(9);
+                                }
+                                PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
+                                PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+                                Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
+                                this.isBlocking = false;
+                                this.fakeBlockState = false;
+                            }
+                            break;
+                        case 3:
+                            if (this.hasValidTarget()) {
+                                if (!Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
+                                    switch (this.blockTick) {
+                                        case 0:
+                                            if (!this.isPlayerBlocking()) {
+                                                swap = true;
+                                            }
+                                            this.blockTick = 1;
+                                            break;
+                                        case 1:
+                                            if (this.isPlayerBlocking()) {
+                                                this.stopBlock();
+                                                attack = false;
+                                            }
                                             if (this.attackDelayMS <= 50L) {
                                                 this.blockTick = 0;
                                             }
@@ -472,22 +510,27 @@ public class KillAura extends Module {
                                             this.blockTick = 0;
                                     }
                                 }
+                                Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
                                 this.isBlocking = true;
-                                this.fakeBlockState = true;
+                                this.fakeBlockState = false;
                             } else {
                                 Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
-                                int randomSlot = new Random().nextInt(9);
-                                while (randomSlot == mc.thePlayer.inventory.currentItem) {
-                                    randomSlot = new Random().nextInt(9);
-                                }
-                                PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
-                                PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
-                                this.stopBlock();
                                 this.isBlocking = false;
                                 this.fakeBlockState = false;
                             }
                             break;
-                        case 3:
+                        case 4:
+                            Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
+                            this.isBlocking = false;
+                            this.fakeBlockState = this.hasValidTarget();
+                            if (PlayerUtil.isUsingItem()
+                                    && !this.isPlayerBlocking()
+                                    && !Myau.playerStateManager.digging
+                                    && !Myau.playerStateManager.placing) {
+                                swap = true;
+                            }
+                            break;
+                        case 5:
                             if (this.hasValidTarget()) {
                                 if (!Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
                                     switch (this.blockTick) {
@@ -535,68 +578,25 @@ public class KillAura extends Module {
                                 this.fakeBlockState = false;
                             }
                             break;
-                        case 4:
-                            if (this.hasValidTarget()) {
-                                if (!Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
-                                    switch (this.blockTick) {
-                                        case 0:
-                                            if (!this.isPlayerBlocking()) {
-                                                swap = true;
-                                            }
-                                            this.blockTick = 1;
-                                            break;
-                                        case 1:
-                                            if (this.isPlayerBlocking()) {
-                                                this.stopBlock();
-                                                attack = false;
-                                            }
-                                            if (this.attackDelayMS <= 50L) {
-                                                this.blockTick = 0;
-                                            }
-                                            break;
-                                        default:
-                                            this.blockTick = 0;
-                                    }
-                                }
-                                Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
-                                this.isBlocking = true;
-                                this.fakeBlockState = false;
-                            } else {
-                                Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
-                                this.isBlocking = false;
-                                this.fakeBlockState = false;
-                            }
-                            break;
-                        case 5:
-                            Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
-                            this.isBlocking = false;
-                            this.fakeBlockState = this.hasValidTarget();
-                            if (PlayerUtil.isUsingItem()
-                                    && !this.isPlayerBlocking()
-                                    && !Myau.playerStateManager.digging
-                                    && !Myau.playerStateManager.placing) {
-                                swap = true;
-                            }
-                            break;
                         case 6:
                             if (this.hasValidTarget()) {
                                 if (!Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
-                                    if (blockTick + 1 == startBlinkTick.getValue()){
+                                    if (blockTick + 1 == startBlinkTick.getValue()) {
                                         blocked = true;
                                     }
-                                    if (blockTick + 1 != attackTick.getValue()){
+                                    if (blockTick + 1 != attackTick.getValue()) {
                                         attack = false;
                                     }
-                                    if (blockTick + 1 == startBlockTick.getValue()){
+                                    if (blockTick + 1 == startBlockTick.getValue()) {
                                         if (!this.isPlayerBlocking()) {
                                             swap = true;
                                             if (postStartBlock.getValue()) postBlock = true;
                                         }
                                     }
-                                    if (blockTick + 1 == stopBlinkTick.getValue()){
+                                    if (blockTick + 1 == stopBlinkTick.getValue()) {
                                         Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
                                     }
-                                    if (blockTick + 1 == swapTick.getValue()){
+                                    if (blockTick + 1 == swapTick.getValue()) {
                                         int randomSlot = new Random().nextInt(9);
                                         while (randomSlot == mc.thePlayer.inventory.currentItem) {
                                             randomSlot = new Random().nextInt(9);
@@ -604,26 +604,26 @@ public class KillAura extends Module {
                                         PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
                                         swapped = true;
                                     }
-                                    if (blockTick + 1 == switchBackTick.getValue()){
-                                        if (swapped){
+                                    if (blockTick + 1 == switchBackTick.getValue()) {
+                                        if (swapped) {
                                             PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
                                             swapped = false;
                                         }
                                     }
-                                    if (blockTick + 1 == stopBlockTick.getValue()){
+                                    if (blockTick + 1 == stopBlockTick.getValue()) {
                                         if (this.isPlayerBlocking()) {
                                             this.stopBlock();
                                         }
                                     }
                                     blockTick++;
-                                    if (blockTick >= maxTick.getValue() - 1){
+                                    if (blockTick >= maxTick.getValue() - 1) {
                                         blockTick = 0;
                                     }
                                 }
                                 this.isBlocking = true;
                                 this.fakeBlockState = true;
                             } else {
-                                if (swapped){
+                                if (swapped) {
                                     PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
                                     swapped = false;
                                 }
@@ -669,8 +669,8 @@ public class KillAura extends Module {
                 }
             }
         }
-        if (event.getType() == EventType.POST && this.isEnabled()){
-            if (postSwap){
+        if (event.getType() == EventType.POST && this.isEnabled()) {
+            if (postSwap) {
                 int randomSlot = new Random().nextInt(9);
                 while (randomSlot == mc.thePlayer.inventory.currentItem) {
                     randomSlot = new Random().nextInt(9);
@@ -681,7 +681,7 @@ public class KillAura extends Module {
                 this.stopBlock();
                 postSwap = false;
             }
-            if (postBlock){
+            if (postBlock) {
                 sendUseItem();
                 postBlock = false;
             }
@@ -790,9 +790,6 @@ public class KillAura extends Module {
                     && MoveUtil.isForwardPressed()) {
                 MoveUtil.fixStrafe(RotationState.getSmoothedYaw());
             }
-            if (this.shouldAutoBlock()) {
-                mc.thePlayer.movementInput.jump = false;
-            }
         }
     }
 
@@ -818,7 +815,7 @@ public class KillAura extends Module {
                 RenderUtil.drawEntityBox(this.target.getEntity(), color.getRed(), color.getGreen(), color.getBlue());
                 RenderUtil.disableRenderState();
             }
-            if (this.showTarget.getValue() == 3){
+            if (this.showTarget.getValue() == 3) {
                 renderScan(event);
             }
         }
@@ -834,13 +831,24 @@ public class KillAura extends Module {
 
     private void renderScan(Render3DEvent event) {
         if (target == null) return;
+
         double renderPosX = ((IAccessorRenderManager) mc.getRenderManager()).getRenderPosX();
         double renderPosY = ((IAccessorRenderManager) mc.getRenderManager()).getRenderPosY();
         double renderPosZ = ((IAccessorRenderManager) mc.getRenderManager()).getRenderPosZ();
-        Vec3 interpolated = interpolate(new Vec3(target.entity.lastTickPosX, target.entity.lastTickPosY, target.entity.lastTickPosZ), target.entity.getPositionVector(), event.getPartialTicks());
+        Vec3 interpolated = interpolate(
+                new Vec3(target.entity.lastTickPosX, target.entity.lastTickPosY, target.entity.lastTickPosZ),
+                target.entity.getPositionVector(),
+                event.getPartialTicks()
+        );
 
         double height = target.entity.height;
-        double offset = (Math.sin(System.currentTimeMillis() / 300.0) + 1) / 2.0 * height;
+        long time = System.currentTimeMillis();
+        double rawAngle = time / 300.0;
+        double offset = (Math.sin(rawAngle) + 1) / 2.0 * height;
+
+        double thicknessScale = 1.0 - Math.abs(Math.sin(rawAngle));
+        double minScale = 0.15;
+        thicknessScale = minScale + (1.0 - minScale) * thicknessScale;
 
         double x = interpolated.xCoord - renderPosX;
         double y = interpolated.yCoord + offset - renderPosY;
@@ -857,31 +865,43 @@ public class KillAura extends Module {
         GlStateManager.disableCull();
 
         float radius = 0.6f;
+        double baseThickness = scanThickness.getValue();
+        double thickness = baseThickness * thicknessScale;
+        double halfThick = thickness / 2.0;
+        double bottomY = -halfThick;
 
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_COLOR);
+        int slices = 60;
 
-        Color centerCol = ((HUD) Myau.moduleManager.getModule(HUD.class)).getColor(0);
-        worldrenderer.pos(0, 0, 0).color(centerCol.getRed()/255f, centerCol.getGreen()/255f, centerCol.getBlue()/255f, 0.4f).endVertex();
+        for (int i = 0; i < slices; i++) {
+            double angle1 = Math.toRadians((i / (double) slices) * 360.0);
+            double angle2 = Math.toRadians(((i + 1) / (double) slices) * 360.0);
 
-        for(int i = 0; i <= 360; i+=10) {
-            double angle = Math.toRadians(i);
-            Color edgeCol = ((HUD) Myau.moduleManager.getModule(HUD.class)).getColor(i * 10);
-            worldrenderer.pos(Math.sin(angle) * radius, 0, Math.cos(angle) * radius)
-                    .color(edgeCol.getRed()/255f, edgeCol.getGreen()/255f, edgeCol.getBlue()/255f, 0.0f).endVertex();
+            double x1 = Math.sin(angle1) * radius;
+            double z1 = Math.cos(angle1) * radius;
+            double x2 = Math.sin(angle2) * radius;
+            double z2 = Math.cos(angle2) * radius;
+
+            Color col1 = ((HUD) Myau.moduleManager.getModule(HUD.class)).getColor((int) (i * 360.0 / slices * 10));
+            Color col2 = ((HUD) Myau.moduleManager.getModule(HUD.class)).getColor((int) ((i + 1) * 360.0 / slices * 10));
+            float r1 = col1.getRed() / 255f;
+            float g1 = col1.getGreen() / 255f;
+            float b1 = col1.getBlue() / 255f;
+            float r2 = col2.getRed() / 255f;
+            float g2 = col2.getGreen() / 255f;
+            float b2 = col2.getBlue() / 255f;
+
+            float alphaBottom = 0.05f;
+            float alphaTop = 0.7f;
+
+            worldrenderer.begin(GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+            worldrenderer.pos(x1, bottomY, z1).color(r1, g1, b1, alphaBottom).endVertex();
+            worldrenderer.pos(x1, halfThick, z1).color(r1, g1, b1, alphaTop).endVertex();
+            worldrenderer.pos(x2, bottomY, z2).color(r2, g2, b2, alphaBottom).endVertex();
+            worldrenderer.pos(x2, halfThick, z2).color(r2, g2, b2, alphaTop).endVertex();
+            tessellator.draw();
         }
-        tessellator.draw();
-
-        GL11.glLineWidth(6.0f);
-        GL11.glBegin(GL11.GL_LINE_STRIP);
-        for (int i = 0; i <= 360; i+=5) {
-            double angle = Math.toRadians(i);
-            Color lineCol = ((HUD) Myau.moduleManager.getModule(HUD.class)).getColor(i * 20);
-            GL11.glColor4f(lineCol.getRed()/255f, lineCol.getGreen()/255f, lineCol.getBlue()/255f, 1.0f);
-            GL11.glVertex3d(Math.sin(angle) * radius, 0, Math.cos(angle) * radius);
-        }
-        GL11.glEnd();
         GlStateManager.shadeModel(GL11.GL_FLAT);
         GlStateManager.enableAlpha();
         GlStateManager.enableCull();
@@ -942,15 +962,6 @@ public class KillAura extends Module {
     @Override
     public void onDisabled() {
         Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
-        if ((this.autoBlock.getValue() == 2 || this.autoBlock.getValue() == 3 || this.autoBlock.getValue() == 6) && Myau.moduleManager.getModule(NoSlow.class).isEnabled()){
-            int randomSlot = new Random().nextInt(9);
-            while (randomSlot == mc.thePlayer.inventory.currentItem) {
-                randomSlot = new Random().nextInt(9);
-            }
-            PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
-            PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
-            this.stopBlock();
-        }
         this.blockingState = false;
         this.isBlocking = false;
         this.fakeBlockState = false;

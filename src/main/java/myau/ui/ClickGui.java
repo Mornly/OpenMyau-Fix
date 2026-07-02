@@ -65,6 +65,7 @@ public class ClickGui extends GuiScreen {
         movementModules.add(Myau.moduleManager.getModule(Stasis.class));
 
         List<Module> renderModules = new ArrayList<>();
+        renderModules.add(Myau.moduleManager.getModule(Animations.class));
         renderModules.add(Myau.moduleManager.getModule(ESP.class));
         renderModules.add(Myau.moduleManager.getModule(Chams.class));
         renderModules.add(Myau.moduleManager.getModule(FullBright.class));
@@ -88,7 +89,6 @@ public class ClickGui extends GuiScreen {
         playerModules.add(Myau.moduleManager.getModule(AutoHeal.class));
         playerModules.add(Myau.moduleManager.getModule(AutoTool.class));
         playerModules.add(Myau.moduleManager.getModule(AutoSwap.class));
-
         playerModules.add(Myau.moduleManager.getModule(ChestAura.class));
         playerModules.add(Myau.moduleManager.getModule(ChestStealer.class));
         playerModules.add(Myau.moduleManager.getModule(InvManager.class));

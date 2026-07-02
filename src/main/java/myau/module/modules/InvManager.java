@@ -36,6 +36,8 @@ public class InvManager extends Module {
     public final IntProperty autoArmorInterval = new IntProperty("auto-armor-interval", 0, 0, 100, this.autoArmor::getValue);
     public final BooleanProperty dropTrash = new BooleanProperty("drop-trash", false);
     public final BooleanProperty checkDurability = new BooleanProperty("check-durability", true);
+    public final BooleanProperty keepWaterBucket = new BooleanProperty("keep-water-bucket", true);
+    public final BooleanProperty keepLavaBucket = new BooleanProperty("keep-lava-bucket", true);
     public final IntProperty swordSlot = new IntProperty("sword-slot", 1, 0, 9);
     public final IntProperty pickaxeSlot = new IntProperty("pickaxe-slot", 3, 0, 9);
     public final IntProperty shovelSlot = new IntProperty("shovel-slot", 4, 0, 9);
@@ -72,6 +74,14 @@ public class InvManager extends Module {
             ItemStack stack = mc.thePlayer.inventory.getStackInSlot(slot);
             return stack != null ? stack.stackSize : 0;
         }
+    }
+
+    private boolean isWaterBucket(ItemStack stack) {
+        return stack != null && stack.getItem() == net.minecraft.init.Items.water_bucket;
+    }
+
+    private boolean isLavaBucket(ItemStack stack) {
+        return stack != null && stack.getItem() == net.minecraft.init.Items.lava_bucket;
     }
 
     public InvManager() {
@@ -246,6 +256,11 @@ public class InvManager extends Module {
                                     if (stack != null) {
                                         boolean isBlock = ItemUtil.isBlock(stack);
                                         boolean isProjectile = ItemUtil.isProjectile(stack);
+                                        boolean isWater = this.keepWaterBucket.getValue() && this.isWaterBucket(stack);
+                                        boolean isLava = this.keepLavaBucket.getValue() && this.isLavaBucket(stack);
+                                        if (isWater || isLava) {
+                                            continue;
+                                        }
                                         if (isBlock) {
                                             currentBlockCount += stack.stackSize;
                                         }

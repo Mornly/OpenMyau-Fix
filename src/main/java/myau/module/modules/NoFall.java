@@ -6,16 +6,22 @@ import myau.enums.BlinkModules;
 import myau.event.EventTarget;
 import myau.event.types.EventType;
 import myau.event.types.Priority;
+import myau.events.MoveInputEvent;
 import myau.events.PacketEvent;
 import myau.events.TickEvent;
+import myau.events.UpdateEvent;
+import myau.management.RotationState;
 import myau.mixin.IAccessorC03PacketPlayer;
 import myau.mixin.IAccessorMinecraft;
 import myau.module.Module;
-import myau.util.*;
+import myau.property.properties.BooleanProperty;
 import myau.property.properties.FloatProperty;
-import myau.property.properties.ModeProperty;
 import myau.property.properties.IntProperty;
+import myau.property.properties.ModeProperty;
+import myau.util.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
@@ -27,9 +33,24 @@ public class NoFall extends Module {
     private final TimerUtil scoreboardResetTimer = new TimerUtil();
     private boolean slowFalling = false;
     private boolean lastOnGround = false;
-    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"PACKET", "BLINK", "NO_GROUND", "SPOOF"});
+
+    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"Packet", "Blink", "No_Ground", "Spoof", "MLG"});
+
     public final FloatProperty distance = new FloatProperty("distance", 3.0F, 0.0F, 20.0F);
     public final IntProperty delay = new IntProperty("delay", 0, 0, 10000);
+
+    public final BooleanProperty autoSwitch = new BooleanProperty("Auto Switch", true, () -> mode.getValue() == 4);
+    public final ModeProperty moveFix = new ModeProperty("Move Fix", 1, new String[]{"NONE", "SILENT"}, () -> mode.getValue() == 4);
+    public final IntProperty priority = new IntProperty("Priority", 2, 1, 10, () -> mode.getValue() == 4);
+
+    private boolean active = false;
+    private boolean onDistance = false;
+    private boolean prevOnGround = false;
+    private double highestY = 0.0;
+    private float originalYaw = 0.0f;
+    private boolean firstClickDone = false;
+    private boolean secondClickDone = false;
+    private int lastSlot = -1;
 
     private boolean canTrigger() {
         return this.scoreboardResetTimer.hasTimeElapsed(3000) && this.packetDelayTimer.hasTimeElapsed(this.delay.getValue().longValue());
@@ -42,8 +63,14 @@ public class NoFall extends Module {
     @EventTarget(Priority.HIGH)
     public void onPacket(PacketEvent event) {
         if (event.getType() == EventType.RECEIVE && event.getPacket() instanceof S08PacketPlayerPosLook) {
-            this.onDisabled();
+            if (mode.getValue() == 4) {
+                resetMLGState();
+                restoreSlot();
+            } else {
+                this.onDisabled();
+            }
         } else if (this.isEnabled() && event.getType() == EventType.SEND && !event.isCancelled()) {
+            if (mode.getValue() == 4) return;
             if (event.getPacket() instanceof C03PacketPlayer) {
                 C03PacketPlayer packet = (C03PacketPlayer) event.getPacket();
                 switch (this.mode.getValue()) {
@@ -112,6 +139,7 @@ public class NoFall extends Module {
     @EventTarget(Priority.HIGHEST)
     public void onTick(TickEvent event) {
         if (this.isEnabled() && event.getType() == EventType.PRE) {
+            if (mode.getValue() == 4) return;
             if (ServerUtil.hasPlayerCountInfo()) {
                 this.scoreboardResetTimer.reset();
             }
@@ -122,13 +150,182 @@ public class NoFall extends Module {
         }
     }
 
+    @EventTarget
+    public void onUpdate(UpdateEvent event) {
+        if (!isEnabled() || event.getType() != EventType.PRE) return;
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+        if (mc.currentScreen != null) return;
+
+        if (mode.getValue() == 4) {
+            Module scaffold = Myau.moduleManager.getModule("Scaffold");
+            if (scaffold != null && scaffold.isEnabled()) {
+                if (active) {
+                    restoreSlot();
+                    resetMLGState();
+                }
+                return;
+            }
+
+            fallCheck();
+
+            if (!active && onDistance && !mc.thePlayer.onGround) {
+                active = true;
+                originalYaw = mc.thePlayer.rotationYaw;
+                firstClickDone = false;
+                secondClickDone = false;
+
+                if (autoSwitch.getValue()) {
+                    lastSlot = mc.thePlayer.inventory.currentItem;
+                    int bucketSlot = findWaterBucketSlot();
+                    if (bucketSlot != -1) {
+                        mc.thePlayer.inventory.currentItem = bucketSlot;
+                    }
+                }
+            }
+
+            if (active) {
+                if (mc.thePlayer.onGround && !secondClickDone) {
+                    performRightClick();
+                    secondClickDone = true;
+                    active = false;
+                    restoreSlot();
+                    return;
+                }
+
+                if (autoSwitch.getValue()) {
+                    ItemStack held = mc.thePlayer.inventory.getCurrentItem();
+                    if (held == null || held.getItem() != Items.water_bucket) {
+                        active = false;
+                        restoreSlot();
+                        return;
+                    }
+                }
+
+                event.setRotation(originalYaw, 90.0f, priority.getValue());
+                event.setPervRotation(originalYaw, priority.getValue());
+
+                if (!firstClickDone) {
+                    double dist = getDistanceToGround();
+                    if (dist >= 0 && dist <= 3.0) {
+                        performRightClick();
+                        firstClickDone = true;
+                    }
+                }
+            }
+        }
+    }
+
+    @EventTarget
+    public void onMove(MoveInputEvent event) {
+        if (!isEnabled()) return;
+        if (mode.getValue() != 4) return;
+
+        Module scaffold = Myau.moduleManager.getModule("Scaffold");
+        if (scaffold != null && scaffold.isEnabled()) {
+            return;
+        }
+
+        if (active && moveFix.getValue() == 1
+                && RotationState.isActived()
+                && RotationState.getPriority() == priority.getValue()
+                && MoveUtil.isForwardPressed()) {
+            MoveUtil.fixStrafe(RotationState.getSmoothedYaw());
+        }
+    }
+
+    private void fallCheck() {
+        boolean onGround = mc.thePlayer.onGround;
+        if (onGround) {
+            onDistance = false;
+            highestY = mc.thePlayer.posY;
+        } else if (prevOnGround) {
+            highestY = mc.thePlayer.posY;
+        } else {
+            if (highestY - mc.thePlayer.posY > 3.0) {
+                onDistance = true;
+            }
+        }
+        prevOnGround = onGround;
+    }
+
+    private double getDistanceToGround() {
+        RotationUtil.RotationVec rotation = new RotationUtil.RotationVec(originalYaw, 90.0f);
+        RayCastUtil.RayCastResult result = RayCastUtil.rayCast(rotation, 10.0, 0.0f);
+        if (result != null && result.typeOfHit == RayCastUtil.RayCastResult.Type.BLOCK && result.hitVec != null) {
+            double footY = mc.thePlayer.getEntityBoundingBox().minY;
+            return footY - result.hitVec.yCoord;
+        }
+        return -1;
+    }
+
+    private void performRightClick() {
+        RotationUtil.RotationVec rotation = new RotationUtil.RotationVec(originalYaw, 90.0f);
+        RayCastUtil.RayCastResult result = RayCastUtil.rayCast(rotation, 10.0, 0.0f);
+        if (result != null && result.typeOfHit == RayCastUtil.RayCastResult.Type.BLOCK && result.hitVec != null) {
+            mc.playerController.onPlayerRightClick(
+                    mc.thePlayer,
+                    mc.theWorld,
+                    mc.thePlayer.getHeldItem(),
+                    result.getBlockPos(),
+                    result.sideHit,
+                    result.hitVec
+            );
+            mc.thePlayer.swingItem();
+        }
+    }
+
+    private int findWaterBucketSlot() {
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
+            if (stack != null && stack.getItem() == Items.water_bucket) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void restoreSlot() {
+        if (autoSwitch.getValue() && lastSlot != -1 && mc.thePlayer != null
+                && mc.thePlayer.inventory.currentItem != lastSlot) {
+            mc.thePlayer.inventory.currentItem = lastSlot;
+        }
+    }
+
+    private void resetMLGState() {
+        active = false;
+        onDistance = false;
+        prevOnGround = false;
+        highestY = 0.0;
+        firstClickDone = false;
+        secondClickDone = false;
+    }
+
+    @Override
+    public void onEnabled() {
+        if (mode.getValue() == 4) {
+            resetMLGState();
+            if (mc.thePlayer != null) {
+                originalYaw = mc.thePlayer.rotationYaw;
+                highestY = mc.thePlayer.posY;
+                prevOnGround = mc.thePlayer.onGround;
+            }
+        } else {
+            this.lastOnGround = false;
+        }
+    }
+
     @Override
     public void onDisabled() {
-        this.lastOnGround = false;
-        Myau.blinkManager.setBlinkState(false, BlinkModules.NO_FALL);
-        if (this.slowFalling) {
-            this.slowFalling = false;
-            ((IAccessorMinecraft) mc).getTimer().timerSpeed = 1.0F;
+        if (mode.getValue() == 4) {
+            resetMLGState();
+            restoreSlot();
+        } else {
+            this.lastOnGround = false;
+            Myau.blinkManager.setBlinkState(false, BlinkModules.NO_FALL);
+            if (this.slowFalling) {
+                this.slowFalling = false;
+                ((IAccessorMinecraft) mc).getTimer().timerSpeed = 1.0F;
+            }
         }
     }
 

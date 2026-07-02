@@ -22,7 +22,7 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public class Speed extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Prediction", "Normal"});
+    private final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"TimerBalance", "Normal"});
     public final FloatProperty timerBoostMultiplier = new FloatProperty("TimerBoostMultiplier", 0.5f, 0.1f, 1f, () -> this.mode.getValue() == 0);
     public final IntProperty lowTimerTicks = new IntProperty("LowTimerTicks", 6, 1, 10, () -> this.mode.getValue() == 0);
     public final BooleanProperty rotation = new BooleanProperty("Rotation", false, () -> this.mode.getValue() == 0);
