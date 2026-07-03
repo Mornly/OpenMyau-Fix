@@ -147,6 +147,7 @@ public class Myau {
         commandManager.commands.add(new PlayerCommand());
         commandManager.commands.add(new ShowCommand());
         commandManager.commands.add(new TargetCommand());
+        commandManager.commands.add(new TextCommand());
         commandManager.commands.add(new ToggleCommand());
         commandManager.commands.add(new VclipCommand());
         for (Module module : moduleManager.modules.values()) {

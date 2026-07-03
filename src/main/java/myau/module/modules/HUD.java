@@ -28,6 +28,9 @@ import java.util.stream.Collectors;
 public class HUD extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
     private List<Module> activeModules = new ArrayList<>();
+
+    /** Custom text set via .text command, rendered at the top of the HUD list. */
+    public static String customText = null;
     public final ModeProperty colorMode = new ModeProperty(
             "color", 3, new String[]{"RAINBOW", "CHROMA", "ASTOLFO", "CUSTOM1", "CUSTOM12", "CUSTOM123"}
     );
@@ -183,6 +186,19 @@ public class HUD extends Module {
             GlStateManager.scale(this.scale.getValue(), this.scale.getValue(), 0.0F);
             long l = System.currentTimeMillis();
             long offset = 0L;
+
+            // ── Custom text at top of HUD ──
+            if (customText != null && !customText.isEmpty()) {
+                GlStateManager.disableDepth();
+                FontManager.getFontRenderer().drawStringWithShadow(
+                        customText,
+                        x / this.scale.getValue() - (this.posX.getValue() == 1 ? (float) FontManager.getFontRenderer().getStringWidth(customText) : 0.0F),
+                        y / this.scale.getValue(),
+                        0xFFFFFFFF);
+                y += (height + (this.shadow.getValue() ? 1.0F : 0.0F)) * this.scale.getValue() * (this.posY.getValue() == 0 ? 1.0F : -1.0F);
+                offset++;
+            }
+
             for (Module module : this.activeModules) {
                 String moduleName = this.getModuleName(module);
                 String[] moduleSuffix = this.getModuleSuffix(module);
