@@ -3,7 +3,9 @@ package myau.module.modules;
 import myau.Myau;
 import myau.event.EventTarget;
 import myau.events.Render2DEvent;
+import myau.font.UFontRenderer;
 import myau.module.Module;
+import myau.property.properties.ModeProperty;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,8 +13,30 @@ import net.minecraft.client.renderer.GlStateManager;
 public class WaterMark extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
 
+    public final ModeProperty fontMode = new ModeProperty("FontMode", 0, new String[]{"Minecraft", "Modern"});
+
+    private UFontRenderer modernFont;
+    private boolean modernFontLoaded = false;
+
     public WaterMark() {
         super("WaterMark", false, false);
+    }
+
+    private FontRenderer getFontRenderer() {
+        if (fontMode.getValue() == 1) {
+            if (!modernFontLoaded) {
+                try {
+                    modernFont = new UFontRenderer("GoogleSans-Regular", 18);
+                } catch (Exception e) {
+                    modernFont = null;
+                }
+                modernFontLoaded = true;
+            }
+            if (modernFont != null) {
+                return modernFont;
+            }
+        }
+        return mc.fontRendererObj;
     }
 
     @EventTarget
@@ -38,7 +62,7 @@ public class WaterMark extends Module {
         String pingValue = ping + "ms";
 
         HUD hud = (HUD) Myau.moduleManager.getModule(HUD.class);
-        FontRenderer font = FontManager.getFontRenderer();
+        FontRenderer font = getFontRenderer();
 
         float x = 2.0f;
         float y = 2.0f;

@@ -166,8 +166,8 @@ public class ItemESP extends Module {
                     String countText = String.format("%d", itemEntry.getValue());
                     RenderUtil.drawOutlinedString(
                             countText,
-                            ((float) FontManager.getFontRenderer().getStringWidth(countText) / 2.0F - 0.5F) * -1.0F,
-                            ((float) (FontManager.getFontRenderer().FONT_HEIGHT / 2) - 0.5F) * -1.0F
+                            ((float) mc.fontRendererObj.getStringWidth(countText) / 2.0F - 0.5F) * -1.0F,
+                            ((float) (mc.fontRendererObj.FONT_HEIGHT / 2) - 0.5F) * -1.0F
                     );
                     GlStateManager.enableDepth();
                     GlStateManager.resetColor();

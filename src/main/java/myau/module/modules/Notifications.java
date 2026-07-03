@@ -43,8 +43,8 @@ public class Notifications extends Module {
         java.util.Iterator<NotificationEntry> it = queue.iterator();
         while (it.hasNext()) {
             NotificationEntry entry = it.next();
-            int textWidth = FontManager.getFontRenderer().getStringWidth(entry.message);
-            int textHeight = FontManager.getFontRenderer().FONT_HEIGHT;
+            int textWidth = mc.fontRendererObj.getStringWidth(entry.message);
+            int textHeight = mc.fontRendererObj.FONT_HEIGHT;
             int padding = 6;
             int borderWidth = 3;
             int barHeight = 2;
@@ -108,14 +108,14 @@ public class Notifications extends Module {
             String prefix = entry.isEnabled ? "Enabled " : "Disabled ";
             String moduleName = text.substring(prefix.length());
 
-            int prefixWidth = FontManager.getFontRenderer().getStringWidth(prefix);
-            int moduleWidth = FontManager.getFontRenderer().getStringWidth(moduleName);
+            int prefixWidth = mc.fontRendererObj.getStringWidth(prefix);
+            int moduleWidth = mc.fontRendererObj.getStringWidth(moduleName);
             int totalWidth = prefixWidth + moduleWidth;
             float textX = xPos + (entry.boxWidth - totalWidth) / 2;
-            float textY = yPos + (entry.boxHeight - FontManager.getFontRenderer().FONT_HEIGHT) / 2;
+            float textY = yPos + (entry.boxHeight - mc.fontRendererObj.FONT_HEIGHT) / 2;
 
-            FontManager.getFontRenderer().drawString(prefix, textX, textY, prefixColor, true);
-            FontManager.getFontRenderer().drawString(moduleName, textX + prefixWidth, textY, moduleColor, true);
+            mc.fontRendererObj.drawString(prefix, textX, textY, prefixColor, true);
+            mc.fontRendererObj.drawString(moduleName, textX + prefixWidth, textY, moduleColor, true);
         }
     }
 

@@ -113,8 +113,8 @@ public class Indicators extends Module {
             GlStateManager.popMatrix();
             String string = String.format("%dm", (int) Indicators.mc.thePlayer.getDistanceToEntity(entity));
             GlStateManager.pushMatrix();
-            GlStateManager.translate((offset + 0.0f) * x - (float) FontManager.getFontRenderer().getStringWidth(string) / 2.0f + 1.0f, (offset + 0.0f) * z + 1.0f, -100.0f);
-            FontManager.getFontRenderer().drawStringWithShadow(string, 0.0f, 0.0f, ChatColors.GRAY.toAwtColor() & 0xFFFFFF | 0xBF000000);
+            GlStateManager.translate((offset + 0.0f) * x - (float) mc.fontRendererObj.getStringWidth(string) / 2.0f + 1.0f, (offset + 0.0f) * z + 1.0f, -100.0f);
+            mc.fontRendererObj.drawStringWithShadow(string, 0.0f, 0.0f, ChatColors.GRAY.toAwtColor() & 0xFFFFFF | 0xBF000000);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
             GlStateManager.translate((offset + 15.0f) * x + 1.0f, (offset + 15.0f) * z + 1.0f, -100.0f);

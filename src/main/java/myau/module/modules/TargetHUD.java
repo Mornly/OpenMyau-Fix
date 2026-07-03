@@ -241,17 +241,17 @@ public class TargetHUD extends Module {
             float winningValue = calculateWinning();
             String winLabel = winningValue > 0.0F ? "&aWinning:&r " : "&cLosing:&r ";
 
-            int targetNameWidth = FontManager.getFontRenderer().getStringWidth(targetNameText);
+            int targetNameWidth = mc.fontRendererObj.getStringWidth(targetNameText);
             String healthText = ChatColors.formatColor(
                     String.format("&r&f%s%s❤&r", healthFormat.format(heal), abs > 0.0F ? "&6" : "&c")
             );
-            int healthTextWidth = FontManager.getFontRenderer().getStringWidth(healthText);
+            int healthTextWidth = mc.fontRendererObj.getStringWidth(healthText);
             String statusText = ChatColors.formatColor(String.format("&r&l%s&r", heal == health ? "D" : (heal < health ? "W" : "L")));
-            int statusTextWidth = FontManager.getFontRenderer().getStringWidth(statusText);
+            int statusTextWidth = mc.fontRendererObj.getStringWidth(statusText);
             String healthDiffText = ChatColors.formatColor(
                     String.format("&r%s&r", heal == health ? "0.0" : diffFormat.format(health - heal))
             );
-            int healthDiffWidth = FontManager.getFontRenderer().getStringWidth(healthDiffText);
+            int healthDiffWidth = mc.fontRendererObj.getStringWidth(healthDiffText);
 
             float barContentWidth = Math.max(
                     (float) targetNameWidth + (this.indicator.getValue() ? 2.0F + (float) statusTextWidth + 2.0F : 0.0F),
@@ -337,13 +337,13 @@ public class TargetHUD extends Module {
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-            FontManager.getFontRenderer().drawString(targetNameText, headIconOffset + 2.0F, 2.0F, -1, this.shadow.getValue());
-            FontManager.getFontRenderer().drawString(healthText, headIconOffset + 2.0F, 12.0F, -1, this.shadow.getValue());
+            mc.fontRendererObj.drawString(targetNameText, headIconOffset + 2.0F, 2.0F, -1, this.shadow.getValue());
+            mc.fontRendererObj.drawString(healthText, headIconOffset + 2.0F, 12.0F, -1, this.shadow.getValue());
 
             if (this.indicator.getValue()) {
-                FontManager.getFontRenderer().drawString(statusText, barTotalWidth - 2.0F - (float) statusTextWidth, 2.0F,
+                mc.fontRendererObj.drawString(statusText, barTotalWidth - 2.0F - (float) statusTextWidth, 2.0F,
                         healthDeltaColor.getRGB(), this.shadow.getValue());
-                FontManager.getFontRenderer().drawString(healthDiffText, barTotalWidth - 2.0F - (float) healthDiffWidth, 12.0F,
+                mc.fontRendererObj.drawString(healthDiffText, barTotalWidth - 2.0F - (float) healthDiffWidth, 12.0F,
                         ColorUtil.darker(healthDeltaColor, 0.8F).getRGB(), this.shadow.getValue());
             }
 

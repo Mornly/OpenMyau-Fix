@@ -65,7 +65,6 @@ public class Myau {
         moduleManager.modules.put(AntiFireball.class, new AntiFireball());
         moduleManager.modules.put(AntiObbyTrap.class, new AntiObbyTrap());
         moduleManager.modules.put(AntiObfuscate.class, new AntiObfuscate());
-        moduleManager.modules.put(FontManager.class, new FontManager());
         moduleManager.modules.put(Notifications.class, new Notifications());
         moduleManager.modules.put(AntiVoid.class, new AntiVoid());
         moduleManager.modules.put(AutoClicker.class, new AutoClicker());

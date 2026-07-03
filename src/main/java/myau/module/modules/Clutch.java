@@ -981,12 +981,12 @@ public class Clutch extends Module {
             GlStateManager.disableDepth();
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            FontManager.getFontRenderer().drawString(
+            mc.fontRendererObj.drawString(
                     String.format("%d block%s left", count, count != 1 ? "s" : ""),
                     ((float) new ScaledResolution(mc).getScaledWidth() / 2.0F
-                            + (float) FontManager.getFontRenderer().FONT_HEIGHT * 1.5F) / scale,
+                            + (float) mc.fontRendererObj.FONT_HEIGHT * 1.5F) / scale,
                     (float) new ScaledResolution(mc).getScaledHeight() / 2.0F / scale
-                            - (float) FontManager.getFontRenderer().FONT_HEIGHT / 2.0F + 1.0F,
+                            - (float) mc.fontRendererObj.FONT_HEIGHT / 2.0F + 1.0F,
                     (count > 0 ? Color.WHITE.getRGB() : new Color(255, 85, 85).getRGB()) | -1090519040,
                     hud.shadow.getValue());
             GlStateManager.disableBlend();

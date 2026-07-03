@@ -226,7 +226,7 @@ public class AutoBlockIn extends Module {
     public void onRender2D(Render2DEvent event) {
         if (!isEnabled() || mc.currentScreen != null) return;
         if (!showProgress.getValue()) return;
-        if (FontManager.getFontRenderer() == null) return;
+        if (mc.fontRendererObj == null) return;
         
         float scale = 1.0f;
         String text = String.format("Blocking: %.0f%%", progress * 100.0F);
@@ -238,11 +238,11 @@ public class AutoBlockIn extends Module {
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         
         ScaledResolution sr = new ScaledResolution(mc);
-        int width = FontManager.getFontRenderer().getStringWidth(text);
+        int width = mc.fontRendererObj.getStringWidth(text);
         
         Color color = getProgressColor();
         
-        FontManager.getFontRenderer().drawString(
+        mc.fontRendererObj.drawString(
             text,
             (float) sr.getScaledWidth() / 2.0F / scale - (float) width / 2.0F,
             (float) sr.getScaledHeight() / 5.0F * 2.0F / scale,
