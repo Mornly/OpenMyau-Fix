@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import myau.Myau;
+import myau.font.UFontRenderer;
 import myau.module.Module;
 import myau.module.modules.*;
 import myau.ui.components.BindComponent;
@@ -25,6 +26,7 @@ public class ClickGui extends GuiScreen {
     private final File configFile = new File("./config/Myau/", "clickgui.txt");
     private final ArrayList<CategoryComponent> categoryList;
 
+    private UFontRenderer modernFontRenderer;
     private FontRenderer currentRenderer;
 
     public ClickGui() {
@@ -83,7 +85,6 @@ public class ClickGui extends GuiScreen {
         renderModules.add(Myau.moduleManager.getModule(Trajectories.class));
         renderModules.add(Myau.moduleManager.getModule(Notifications.class));
         renderModules.add(Myau.moduleManager.getModule(WaterMark.class));
-        renderModules.add(Myau.moduleManager.getModule(FontManager.class));
 
         List<Module> playerModules = new ArrayList<>();
         playerModules.add(Myau.moduleManager.getModule(AutoHeal.class));
@@ -178,7 +179,22 @@ public class ClickGui extends GuiScreen {
     }
 
     private FontRenderer getFontRenderer() {
-        return FontManager.getFontRenderer();
+        GuiModule guiModule = (GuiModule) Myau.moduleManager.getModule(GuiModule.class);
+        if (guiModule != null && guiModule.modernFont.getValue()) {
+            if (modernFontRenderer == null) {
+                try {
+                    modernFontRenderer = new UFontRenderer("GoogleSans-Regular", 18);
+                } catch (Exception e) {
+                    modernFontRenderer = null;
+                }
+            }
+            if (modernFontRenderer != null) {
+                return modernFontRenderer;
+            }
+        } else {
+            modernFontRenderer = null;
+        }
+        return mc.fontRendererObj;
     }
 
     private int getFontHeight() {

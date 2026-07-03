@@ -497,8 +497,8 @@ public class BedNuker extends Module {
                     GlStateManager.disableDepth();
                     GlStateManager.enableBlend();
                     GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                    int width = FontManager.getFontRenderer().getStringWidth(text);
-                    FontManager.getFontRenderer()
+                    int width = mc.fontRendererObj.getStringWidth(text);
+                    mc.fontRendererObj
                             .drawString(
                                     text,
                                     (float) new ScaledResolution(mc).getScaledWidth() / 2.0F / scale - (float) width / 2.0F,
