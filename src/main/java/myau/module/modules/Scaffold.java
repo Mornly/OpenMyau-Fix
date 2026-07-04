@@ -89,6 +89,7 @@ public class Scaffold extends Module {
     public final ModeProperty tower = new ModeProperty("tower", 0, new String[]{"NONE", "VANILLA", "EXTRA", "TELLY","HYPIXEL"});
     public final ModeProperty keepY = new ModeProperty("keep-y", 0, new String[]{"NONE", "VANILLA", "EXTRA", "TELLY","EXTRATELLY"});
 
+
     private boolean isSnapDisabled() {
         boolean isKeepYEnabled = this.keepY.getValue() != 0;
         boolean isKeepYActive = isKeepYEnabled && (!(Boolean) this.keepYonPress.getValue() || mc.gameSettings.keyBindUseItem.isKeyDown());

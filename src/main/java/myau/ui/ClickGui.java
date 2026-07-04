@@ -91,6 +91,7 @@ public class ClickGui extends GuiScreen {
         playerModules.add(Myau.moduleManager.getModule(AutoSwap.class));
         playerModules.add(Myau.moduleManager.getModule(ChestAura.class));
         playerModules.add(Myau.moduleManager.getModule(ChestStealer.class));
+        playerModules.add(Myau.moduleManager.getModule(FakeLag.class));
         playerModules.add(Myau.moduleManager.getModule(InvManager.class));
         playerModules.add(Myau.moduleManager.getModule(InvWalk.class));
         playerModules.add(Myau.moduleManager.getModule(Scaffold.class));
