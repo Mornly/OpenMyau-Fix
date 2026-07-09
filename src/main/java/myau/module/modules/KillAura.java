@@ -352,6 +352,24 @@ public class KillAura extends Module {
         return this.target != null ? this.target.getEntity() : null;
     }
 
+    public java.util.List<EntityLivingBase> getTargets() {
+        java.util.List<EntityLivingBase> result = new ArrayList<>();
+        if (this.target != null && TeamUtil.isEntityLoaded(this.target.getEntity())) {
+            result.add(this.target.getEntity());
+        }
+        if (this.mode.getValue() == 1) {
+            for (Entity entity : mc.theWorld.loadedEntityList) {
+                if (entity instanceof EntityLivingBase) {
+                    EntityLivingBase e = (EntityLivingBase) entity;
+                    if (isValidTarget(e) && isInRange(e) && !result.contains(e)) {
+                        result.add(e);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     public boolean isAttackAllowed() {
         Scaffold scaffold = (Scaffold) Myau.moduleManager.getModule(Scaffold.class);
         if (scaffold.isEnabled()) {

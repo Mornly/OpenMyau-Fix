@@ -656,4 +656,165 @@ public class RenderUtil {
         GL11.glVertex2f(mc.displayWidth, 0);
         GL11.glEnd();
     }
+
+    public static void drawRect(double left, double top, double right, double bottom, int color) {
+        if (left < right) {
+            double i = left;
+            left = right;
+            right = i;
+        }
+        if (top < bottom) {
+            double j = top;
+            top = bottom;
+            bottom = j;
+        }
+        float f = (float) (color >> 24 & 255) / 255.0F;
+        float g = (float) (color >> 16 & 255) / 255.0F;
+        float h = (float) (color >> 8 & 255) / 255.0F;
+        float j = (float) (color & 255) / 255.0F;
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.color(g, h, j, f);
+        worldRenderer.begin(7, DefaultVertexFormats.POSITION);
+        worldRenderer.pos(left, bottom, 0.0D).endVertex();
+        worldRenderer.pos(right, bottom, 0.0D).endVertex();
+        worldRenderer.pos(right, top, 0.0D).endVertex();
+        worldRenderer.pos(left, top, 0.0D).endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+    }
+
+    public static void drawRoundedRect(double x, double y, double width, double height, double radius, int color, boolean roundTopLeft, boolean roundTopRight, boolean roundBottomLeft, boolean roundBottomRight) {
+        if (width <= 0.0D || height <= 0.0D || (color >>> 24) == 0) {
+            return;
+        }
+
+        radius = Math.max(0.0D, Math.min(radius, Math.min(width, height) / 2.0D));
+        if (radius <= 0.0D || !(roundTopLeft || roundTopRight || roundBottomLeft || roundBottomRight)) {
+            drawRect((float) x, (float) y, (float) (x + width), (float) (y + height), color);
+            return;
+        }
+
+        enableRenderState();
+        setColor(color);
+        GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
+        GL11.glHint(GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_NICEST);
+
+        drawQuadNoState(x + radius, y, x + width - radius, y + height);
+        drawQuadNoState(x, y + radius, x + radius, y + height - radius);
+        drawQuadNoState(x + width - radius, y + radius, x + width, y + height - radius);
+
+        if (roundTopLeft) {
+            drawCornerFan(x + radius, y + radius, radius, 180.0D, 270.0D);
+        } else {
+            drawQuadNoState(x, y, x + radius, y + radius);
+        }
+
+        if (roundTopRight) {
+            drawCornerFan(x + width - radius, y + radius, radius, 270.0D, 360.0D);
+        } else {
+            drawQuadNoState(x + width - radius, y, x + width, y + radius);
+        }
+
+        if (roundBottomRight) {
+            drawCornerFan(x + width - radius, y + height - radius, radius, 0.0D, 90.0D);
+        } else {
+            drawQuadNoState(x + width - radius, y + height - radius, x + width, y + height);
+        }
+
+        if (roundBottomLeft) {
+            drawCornerFan(x + radius, y + height - radius, radius, 90.0D, 180.0D);
+        } else {
+            drawQuadNoState(x, y + height - radius, x + radius, y + height);
+        }
+
+        GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
+        disableRenderState();
+    }
+
+    public static void drawRoundedRect(float x, float y, float width, float height, float radius, int color, boolean roundTopLeft, boolean roundTopRight, boolean roundBottomLeft, boolean roundBottomRight) {
+        drawRoundedRect((double) x, (double) y, (double) width, (double) height, (double) radius, color, roundTopLeft, roundTopRight, roundBottomLeft, roundBottomRight);
+    }
+
+    public static void drawRoundedRectOutline(float x, float y, float width, float height, float radius, float lineWidth, int color, boolean topLeft, boolean topRight, boolean bottomLeft, boolean bottomRight) {
+        radius = Math.min(radius, Math.min(width, height) / 2.0f);
+        float f = (float) (color >> 24 & 255) / 255.0F;
+        float f1 = (float) (color >> 16 & 255) / 255.0F;
+        float f2 = (float) (color >> 8 & 255) / 255.0F;
+        float f3 = (float) (color & 255) / 255.0F;
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.color(f1, f2, f3, f);
+        GL11.glLineWidth(lineWidth);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+        GL11.glBegin(GL11.GL_LINE_LOOP);
+
+        if (topLeft) {
+            for (int i = 180; i <= 270; i += 3) {
+                double rad = Math.toRadians(i);
+                GL11.glVertex2d(x + radius + Math.cos(rad) * radius, y + radius + Math.sin(rad) * radius);
+            }
+        } else {
+            GL11.glVertex2f(x, y);
+        }
+
+        if (topRight) {
+            for (int i = 270; i <= 360; i += 3) {
+                double rad = Math.toRadians(i);
+                GL11.glVertex2d(x + width - radius + Math.cos(rad) * radius, y + radius + Math.sin(rad) * radius);
+            }
+        } else {
+            GL11.glVertex2f(x + width, y);
+        }
+
+        if (bottomRight) {
+            for (int i = 0; i <= 90; i += 3) {
+                double rad = Math.toRadians(i);
+                GL11.glVertex2d(x + width - radius + Math.cos(rad) * radius, y + height - radius + Math.sin(rad) * radius);
+            }
+        } else {
+            GL11.glVertex2f(x + width, y + height);
+        }
+
+        if (bottomLeft) {
+            for (int i = 90; i <= 180; i += 3) {
+                double rad = Math.toRadians(i);
+                GL11.glVertex2d(x + radius + Math.cos(rad) * radius, y + height - radius + Math.sin(rad) * radius);
+            }
+        } else {
+            GL11.glVertex2f(x, y + height);
+        }
+
+        GL11.glEnd();
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GL11.glLineWidth(2.0f);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+    }
+
+    private static void drawQuadNoState(double x1, double y1, double x2, double y2) {
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glVertex2d(x1, y1);
+        GL11.glVertex2d(x2, y1);
+        GL11.glVertex2d(x2, y2);
+        GL11.glVertex2d(x1, y2);
+        GL11.glEnd();
+    }
+
+    private static void drawCornerFan(double centerX, double centerY, double radius, double start, double end) {
+        int segments = Math.max(12, (int) Math.ceil(radius * 3.0D));
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+        GL11.glVertex2d(centerX, centerY);
+        for (int i = 0; i <= segments; i++) {
+            double angle = Math.toRadians(start + (end - start) * i / segments);
+            GL11.glVertex2d(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
+        }
+        GL11.glEnd();
+    }
 }

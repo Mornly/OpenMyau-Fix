@@ -486,13 +486,6 @@ public class Velocity extends Module {
 
     @Override
     public String[] getSuffix() {
-        if (this.mode.getValue() <= 1) {
-            return new String[]{
-                    String.format("%d%%", this.horizontal.getValue()),
-                    String.format("%d%%", this.vertical.getValue())
-            };
-        } else {
-            return new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.mode.getModeString())};
-        }
+        return new String[]{this.mode.getModeString()};
     }
 }

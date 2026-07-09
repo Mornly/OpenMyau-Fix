@@ -35,6 +35,7 @@ public class ClickGui extends GuiScreen {
         List<Module> combatModules = new ArrayList<>();
         combatModules.add(Myau.moduleManager.getModule(AimAssist.class));
         combatModules.add(Myau.moduleManager.getModule(AutoClicker.class));
+        combatModules.add(Myau.moduleManager.getModule(AutoProjectiles.class));
         combatModules.add(Myau.moduleManager.getModule(KillAura.class));
         combatModules.add(Myau.moduleManager.getModule(Wtap.class));
         combatModules.add(Myau.moduleManager.getModule(Velocity.class));
@@ -84,6 +85,7 @@ public class ClickGui extends GuiScreen {
         renderModules.add(Myau.moduleManager.getModule(Trajectories.class));
         renderModules.add(Myau.moduleManager.getModule(Notifications.class));
         renderModules.add(Myau.moduleManager.getModule(WaterMark.class));
+        renderModules.add(Myau.moduleManager.getModule(TabGui.class));
 
         List<Module> playerModules = new ArrayList<>();
         playerModules.add(Myau.moduleManager.getModule(AutoHeal.class));
