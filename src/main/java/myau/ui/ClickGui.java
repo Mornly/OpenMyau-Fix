@@ -43,11 +43,13 @@ public class ClickGui extends GuiScreen {
         combatModules.add(Myau.moduleManager.getModule(TargetStrafe.class));
         combatModules.add(Myau.moduleManager.getModule(NoHitDelay.class));
         combatModules.add(Myau.moduleManager.getModule(AntiFireball.class));
+        combatModules.add(Myau.moduleManager.getModule(KnockbackDelay.class));
         combatModules.add(Myau.moduleManager.getModule(LagRange.class));
         combatModules.add(Myau.moduleManager.getModule(HitBox.class));
         combatModules.add(Myau.moduleManager.getModule(MoreKB.class));
         combatModules.add(Myau.moduleManager.getModule(HitSelect.class));
         combatModules.add(Myau.moduleManager.getModule(BackTrack.class));
+        combatModules.add(Myau.moduleManager.getModule(BlockHit.class));
 
         List<Module> movementModules = new ArrayList<>();
         movementModules.add(Myau.moduleManager.getModule(AntiAFK.class));
@@ -77,6 +79,7 @@ public class ClickGui extends GuiScreen {
         renderModules.add(Myau.moduleManager.getModule(Indicators.class));
         renderModules.add(Myau.moduleManager.getModule(BedESP.class));
         renderModules.add(Myau.moduleManager.getModule(ItemESP.class));
+        renderModules.add(Myau.moduleManager.getModule(PotionEffects.class));
         renderModules.add(Myau.moduleManager.getModule(ViewClip.class));
         renderModules.add(Myau.moduleManager.getModule(NoHurtCam.class));
         renderModules.add(Myau.moduleManager.getModule(HUD.class));
@@ -86,6 +89,7 @@ public class ClickGui extends GuiScreen {
         renderModules.add(Myau.moduleManager.getModule(Notifications.class));
         renderModules.add(Myau.moduleManager.getModule(WaterMark.class));
         renderModules.add(Myau.moduleManager.getModule(TabGui.class));
+        renderModules.add(Myau.moduleManager.getModule(BedPlates.class));
 
         List<Module> playerModules = new ArrayList<>();
         playerModules.add(Myau.moduleManager.getModule(AutoHeal.class));

@@ -36,7 +36,7 @@ public class SliderComponent implements Component {
     public void draw(AtomicInteger offset) {
         Gui.drawRect(this.parentModule.category.getX() + 4, this.parentModule.category.getY() + this.offsetY + 11, this.parentModule.category.getX() + 4 + this.parentModule.category.getWidth() - 8, this.parentModule.category.getY() + this.offsetY + 15, -12302777);
         int sliderStart = this.parentModule.category.getX() + 4;
-        int sliderEnd = this.parentModule.category.getX() + 4 + (int) this.sliderWidth;
+        int sliderEnd = sliderStart + (int) this.sliderWidth;
         if (sliderEnd - sliderStart > 84) {
             sliderEnd = sliderStart + 84;
         }
@@ -61,16 +61,18 @@ public class SliderComponent implements Component {
         this.y = this.parentModule.category.getY() + this.offsetY;
         this.x = this.parentModule.category.getX();
 
-        double d = Math.min(this.parentModule.category.getWidth() - 8, Math.max(0, mousePosX - this.x));
-        this.sliderWidth = (double) (this.parentModule.category.getWidth() - 8) *
+        int sliderStart = this.x + 4;
+        int sliderWidthTotal = this.parentModule.category.getWidth() - 8;
+        double d = Math.min(sliderWidthTotal, Math.max(0, mousePosX - sliderStart));
+        this.sliderWidth = (double) sliderWidthTotal *
                 (this.slider.getInput() - this.slider.getMin()) /
                 (this.slider.getMax() - this.slider.getMin());
 
         if (this.dragging) {
-            if (d == 0.0D) {
+            if (sliderWidthTotal == 0) {
                 this.slider.setValue(this.slider.getMin());
             } else {
-                double rawValue = d / (double) (this.parentModule.category.getWidth() - 8)
+                double rawValue = d / (double) sliderWidthTotal
                         * (this.slider.getMax() - this.slider.getMin())
                         + this.slider.getMin();
 

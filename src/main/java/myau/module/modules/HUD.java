@@ -45,7 +45,7 @@ public class HUD extends Module {
 
     public final BooleanProperty showBar = new BooleanProperty("bar", true);
     public final ModeProperty sidebarMode = new ModeProperty("sidebar-mode", 0, new String[]{"RIGHT", "LEFT", "TOP", "OUTLINE", "NONE"}, this.showBar::getValue);
-    public final FloatProperty barWidth = new FloatProperty("bar-width", 1.0F, 0.1F, 1.0F,
+    public final FloatProperty barWidth = new FloatProperty("bar-width", 1.0F, 0.1F, 1.5F,
             () -> this.showBar.getValue() && this.sidebarMode.getValue() != 4 && this.sidebarMode.getValue() != 3);
     public final BooleanProperty animation = new BooleanProperty("animation", false);
 

@@ -98,7 +98,7 @@ public class KillAura extends Module {
     public ModeProperty showTarget;
 
     private final TimerUtil timer = new TimerUtil();
-    private AttackData target = null;
+    public AttackData target = null;
     private int switchTick = 0;
     private boolean hitRegistered = false;
     private boolean blockingState = false;

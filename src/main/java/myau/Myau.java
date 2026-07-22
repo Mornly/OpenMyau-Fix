@@ -91,9 +91,13 @@ public class Myau {
         moduleManager.modules.put(GuiModule.class, new GuiModule());
         moduleManager.modules.put(HitSelect.class, new HitSelect());
         moduleManager.modules.put(HUD.class, new HUD());
+        moduleManager.modules.put(BlockHit.class, new BlockHit());
         moduleManager.modules.put(MoreKB.class, new MoreKB());
         moduleManager.modules.put(Indicators.class, new Indicators());
         moduleManager.modules.put(InventoryClicker.class, new InventoryClicker());
+        moduleManager.modules.put(KnockbackDelay.class, new KnockbackDelay());
+        moduleManager.modules.put(PotionEffects.class, new PotionEffects());
+        moduleManager.modules.put(BedPlates.class, new BedPlates());
         moduleManager.modules.put(InvManager.class, new InvManager());
         moduleManager.modules.put(InvWalk.class, new InvWalk());
         moduleManager.modules.put(ItemESP.class, new ItemESP());
